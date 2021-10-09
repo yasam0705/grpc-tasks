@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"grpc_postgres/pkg/api/proto"
+	"grpc_postgres/pkg/proto"
 
 	_ "github.com/lib/pq"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const connStr = "user=postgres dbname=psql_task sslmode=disable"
@@ -22,7 +23,8 @@ Create(context.Context, *ContactRequest) (*ContactResponse, error)
 Update(context.Context, *ContactRequest) (*ContactResponse, error)
 Delete(context.Context, *ContactIdRequest) (*ContactResponse, error)
 Get(context.Context, *ContactIdRequest) (*ContactResponse, error)
-GetAll(context.Context, *ContactIdRequest) (*ContactResponse, error)
+GetAll(context.Context, *emptypb.Empty) (*ContactSliceResponce, error)
+mustEmbedUnimplementedContactsServer()
 */
 
 func (grpc GRPCServer) Create(ctx context.Context, cr *proto.ContactRequest) (*proto.ContactResponse, error) {
@@ -66,6 +68,22 @@ func (grpc GRPCServer) Get(ctx context.Context, cir *proto.ContactIdRequest) (*p
 	return &proto.ContactResponse{C: &cont}, nil
 }
 
-func (grpc GRPCServer) GetAll(ctx context.Context, cir *proto.ContactIdRequest) (*proto.ContactResponse, error) {
-	return &proto.ContactResponse{}, nil
+func (grpc GRPCServer) GetAll(ctx context.Context, emp *emptypb.Empty) (*proto.ContactSliceResponce, error) {
+	rows, err := Db.Query("SELECT contact_id, first_name, last_name, phone, email from contacts ORDER BY contact_id")
+	if err != nil {
+		return &proto.ContactSliceResponce{C: make([]*proto.Contact, 0)}, err
+	}
+
+	defer rows.Close()
+
+	var result = make([]*proto.Contact, 0)
+
+	for rows.Next() {
+		var tempContact proto.Contact
+		rows.Scan(&tempContact.Id, &tempContact.FirstName, &tempContact.LastName, &tempContact.Phone, &tempContact.Email)
+
+		result = append(result, &tempContact)
+	}
+
+	return &proto.ContactSliceResponce{C: result}, nil
 }

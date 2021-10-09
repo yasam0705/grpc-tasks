@@ -1,7 +1,7 @@
 package main
 
 import (
-	"grpc_postgres/pkg/api/proto"
+	"grpc_postgres/pkg/proto"
 	"grpc_postgres/pkg/server"
 	"log"
 	"net"

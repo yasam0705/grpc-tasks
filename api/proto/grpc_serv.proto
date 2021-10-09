@@ -4,12 +4,14 @@ package api;
 
 option go_package = "/proto";
 
+import "google/protobuf/empty.proto";
+
 service contacts {
     rpc Create(ContactRequest) returns (ContactResponse) {}
     rpc Update(ContactRequest) returns (ContactResponse) {}
     rpc Delete(ContactIdRequest) returns (ContactResponse) {}
     rpc Get(ContactIdRequest) returns (ContactResponse) {}
-    rpc GetAll(ContactIdRequest) returns (ContactResponse) {}
+    rpc GetAll(google.protobuf.Empty) returns (ContactSliceResponce) {}
 }
 
 message Contact {
@@ -32,6 +34,6 @@ message ContactResponse {
     Contact c = 1;
 }
 
-// message ContactSliceResponce {
-//     repeated Contact c = 1;
-// }
+message ContactSliceResponce {
+    repeated Contact c = 1;
+}

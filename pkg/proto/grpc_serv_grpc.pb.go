@@ -7,6 +7,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,7 +23,7 @@ type ContactsClient interface {
 	Update(ctx context.Context, in *ContactRequest, opts ...grpc.CallOption) (*ContactResponse, error)
 	Delete(ctx context.Context, in *ContactIdRequest, opts ...grpc.CallOption) (*ContactResponse, error)
 	Get(ctx context.Context, in *ContactIdRequest, opts ...grpc.CallOption) (*ContactResponse, error)
-	GetAll(ctx context.Context, in *ContactIdRequest, opts ...grpc.CallOption) (*ContactResponse, error)
+	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ContactSliceResponce, error)
 }
 
 type contactsClient struct {
@@ -69,8 +70,8 @@ func (c *contactsClient) Get(ctx context.Context, in *ContactIdRequest, opts ...
 	return out, nil
 }
 
-func (c *contactsClient) GetAll(ctx context.Context, in *ContactIdRequest, opts ...grpc.CallOption) (*ContactResponse, error) {
-	out := new(ContactResponse)
+func (c *contactsClient) GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ContactSliceResponce, error) {
+	out := new(ContactSliceResponce)
 	err := c.cc.Invoke(ctx, "/api.contacts/GetAll", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,7 +87,7 @@ type ContactsServer interface {
 	Update(context.Context, *ContactRequest) (*ContactResponse, error)
 	Delete(context.Context, *ContactIdRequest) (*ContactResponse, error)
 	Get(context.Context, *ContactIdRequest) (*ContactResponse, error)
-	GetAll(context.Context, *ContactIdRequest) (*ContactResponse, error)
+	GetAll(context.Context, *emptypb.Empty) (*ContactSliceResponce, error)
 	mustEmbedUnimplementedContactsServer()
 }
 
@@ -106,7 +107,7 @@ func (UnimplementedContactsServer) Delete(context.Context, *ContactIdRequest) (*
 func (UnimplementedContactsServer) Get(context.Context, *ContactIdRequest) (*ContactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedContactsServer) GetAll(context.Context, *ContactIdRequest) (*ContactResponse, error) {
+func (UnimplementedContactsServer) GetAll(context.Context, *emptypb.Empty) (*ContactSliceResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
 func (UnimplementedContactsServer) mustEmbedUnimplementedContactsServer() {}
@@ -195,7 +196,7 @@ func _Contacts_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 }
 
 func _Contacts_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContactIdRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func _Contacts_GetAll_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/api.contacts/GetAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContactsServer).GetAll(ctx, req.(*ContactIdRequest))
+		return srv.(ContactsServer).GetAll(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -241,5 +242,5 @@ var Contacts_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "grpc_serv.proto",
+	Metadata: "api/proto/grpc_serv.proto",
 }
