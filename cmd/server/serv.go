@@ -10,26 +10,17 @@ import (
 )
 
 func main() {
-	cs := grpc.NewServer()
-	srvc := server.GRPCContactsServer{}
+	go contactServ()
+	taskServ()
 
-	proto.RegisterContactsServer(cs, srvc)
-
-	l, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err = cs.Serve(l); err != nil {
-		log.Fatal(err)
-	}
-
+}
+func taskServ() {
 	ts := grpc.NewServer()
 	srvt := server.GRPCTasksServer{}
 
 	proto.RegisterTasksServer(ts, srvt)
 
-	lt, err := net.Listen("tcp", ":8181")
+	lt, err := net.Listen("tcp", ":9090")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,5 +28,20 @@ func main() {
 	if err = ts.Serve(lt); err != nil {
 		log.Fatal(err)
 	}
+}
 
+func contactServ() {
+	cs := grpc.NewServer()
+	srvc := server.GRPCContactsServer{}
+
+	proto.RegisterContactsServer(cs, srvc)
+
+	lc, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err = cs.Serve(lc); err != nil {
+		log.Fatal(err)
+	}
 }
