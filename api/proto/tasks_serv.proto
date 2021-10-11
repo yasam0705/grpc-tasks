@@ -1,0 +1,40 @@
+syntax = "proto3";
+package api;
+
+option go_package = "/proto";
+
+import "google/protobuf/empty.proto";
+
+service tasks {
+    rpc Create(TaskRequest) returns (TaskResponse) {}
+    rpc Update(TaskRequest) returns (TaskResponse) {}
+    rpc Delete(TaskIdRequest) returns (TaskResponse) {}
+    rpc Get(TaskIdRequest) returns (TaskResponse) {}
+    rpc GetAll(google.protobuf.Empty) returns (TaskSliceResponce) {}
+}
+
+message Task {
+    int64 id = 1;
+    string name = 2;
+    string status = 3;
+    string priority = 4;
+    string created_at = 5;
+    string Created_by = 6;
+    string due_date = 7;
+}
+
+message TaskIdRequest {
+    int64 id = 1;
+}
+
+message TaskRequest {
+    Task t = 1;
+}
+
+message TaskResponse {
+    Task t = 1;
+}
+
+message TaskSliceResponce {
+    repeated Task t = 1;
+}

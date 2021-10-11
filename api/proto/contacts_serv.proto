@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "/proto";
+
+import "google/protobuf/empty.proto";
+
+service contacts {
+    rpc Create(ContactRequest) returns (ContactResponse) {}
+    rpc Update(ContactRequest) returns (ContactResponse) {}
+    rpc Delete(ContactIdRequest) returns (ContactResponse) {}
+    rpc Get(ContactIdRequest) returns (ContactResponse) {}
+    rpc GetAll(google.protobuf.Empty) returns (ContactSliceResponce) {}
+}
+
+message Contact {
+    int64 id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string phone = 4;
+    string email = 5;
+}
+
+message ContactIdRequest {
+    int64 id = 1;
+}
+
+message ContactRequest {
+    Contact c = 1;
+}
+
+message ContactResponse {
+    Contact c = 1;
+}
+
+message ContactSliceResponce {
+    repeated Contact c = 1;
+}
