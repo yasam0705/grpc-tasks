@@ -14,20 +14,11 @@ const connStr = "user=postgres dbname=psql_task sslmode=disable"
 
 var Db, _ = sql.Open("postgres", connStr)
 
-type GRPCServer struct {
+type GRPCContactsServer struct {
 	proto.UnimplementedContactsServer
 }
 
-/*
-Create(context.Context, *ContactRequest) (*ContactResponse, error)
-Update(context.Context, *ContactRequest) (*ContactResponse, error)
-Delete(context.Context, *ContactIdRequest) (*ContactResponse, error)
-Get(context.Context, *ContactIdRequest) (*ContactResponse, error)
-GetAll(context.Context, *emptypb.Empty) (*ContactSliceResponce, error)
-mustEmbedUnimplementedContactsServer()
-*/
-
-func (grpc GRPCServer) Create(ctx context.Context, cr *proto.ContactRequest) (*proto.ContactResponse, error) {
+func (grpc GRPCContactsServer) Create(ctx context.Context, cr *proto.ContactRequest) (*proto.ContactResponse, error) {
 	_, err := Db.Exec(`INSERT INTO contacts
 	(contact_id, first_name, last_name, phone, email)
 	VALUES ($1, $2, $3, $4, $5)
@@ -36,7 +27,7 @@ func (grpc GRPCServer) Create(ctx context.Context, cr *proto.ContactRequest) (*p
 	return &proto.ContactResponse{C: cr.C}, err
 }
 
-func (grpc GRPCServer) Update(ctx context.Context, cr *proto.ContactRequest) (*proto.ContactResponse, error) {
+func (grpc GRPCContactsServer) Update(ctx context.Context, cr *proto.ContactRequest) (*proto.ContactResponse, error) {
 	res, err := Db.Exec(`UPDATE contacts 
 			SET first_name = $1, last_name = $2, phone = $3, email = $4
 			WHERE contact_id = $5
@@ -53,13 +44,13 @@ func (grpc GRPCServer) Update(ctx context.Context, cr *proto.ContactRequest) (*p
 	return &proto.ContactResponse{C: cr.C}, err
 }
 
-func (grpc GRPCServer) Delete(ctx context.Context, cir *proto.ContactIdRequest) (*proto.ContactResponse, error) {
+func (grpc GRPCContactsServer) Delete(ctx context.Context, cir *proto.ContactIdRequest) (*proto.ContactResponse, error) {
 	Db.QueryRow("DELETE FROM contacts WHERE contact_id = $1", cir.Id)
 
 	return &proto.ContactResponse{}, nil
 }
 
-func (grpc GRPCServer) Get(ctx context.Context, cir *proto.ContactIdRequest) (*proto.ContactResponse, error) {
+func (grpc GRPCContactsServer) Get(ctx context.Context, cir *proto.ContactIdRequest) (*proto.ContactResponse, error) {
 	row := Db.QueryRow("SELECT contact_id, first_name, last_name, phone, email from contacts WHERE contact_id = $1", cir.Id)
 
 	var cont proto.Contact
@@ -68,7 +59,7 @@ func (grpc GRPCServer) Get(ctx context.Context, cir *proto.ContactIdRequest) (*p
 	return &proto.ContactResponse{C: &cont}, nil
 }
 
-func (grpc GRPCServer) GetAll(ctx context.Context, emp *emptypb.Empty) (*proto.ContactSliceResponce, error) {
+func (grpc GRPCContactsServer) GetAll(ctx context.Context, emp *emptypb.Empty) (*proto.ContactSliceResponce, error) {
 	rows, err := Db.Query("SELECT contact_id, first_name, last_name, phone, email from contacts ORDER BY contact_id")
 	if err != nil {
 		return &proto.ContactSliceResponce{C: make([]*proto.Contact, 0)}, err
